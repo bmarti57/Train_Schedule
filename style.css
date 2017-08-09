@@ -1,0 +1,36 @@
+body {
+	background-color: black;
+	margin-left: 40px;
+	margin-right: 40px;
+	margin-top: 10px;
+	font-family: 'Roboto', sans-serif;
+}
+
+.jumbotron {
+	text-align: center;
+	color: white;
+	background: grey;
+	border-radius: 8px;
+	font-family: 'Roboto', sans-serif;
+
+}
+
+.panel-head {
+	background-color: grey;
+	color: white;
+	font-family: 'Roboto', sans-serif;
+}
+
+.text-input {
+	width: 100%;
+}
+
+#submit {
+	background: grey;
+	color: white;
+	font-family: 'Roboto', sans-serif;
+}
+
+.panel {
+	border-color: grey;
+}
