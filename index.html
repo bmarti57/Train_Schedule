@@ -21,17 +21,17 @@
 	    <strong><h3 class="panel-title">Current Train Schedule</h3></strong>
 	  </div>
 	  <div class="panel-body">
-	  	<table id="table">
-	  		<thead>
-	  			<th>Train Name</th>
-	  			<th>Destination</th>
-	  			<th>Frequency (min)</th>
-	  			<th>Next Arrival</th>
-	  			<th>Minutes Away</th>
-	  		</thead>
-	  		<tbody>
-	   		</tbody>
-	  	</table>
+	  	<table class="table table-hover" id="table">
+	  			<thead>
+		  			<th>Train Name</th>
+		  			<th>Destination</th>
+		  			<th>Frequency (min)</th>
+		  			<th>Next Arrival (Military Time)</th>
+		  			<th>Minutes Away</th>
+		  		</thead>
+		 		<tbody>
+		   		</tbody>
+		 </table>
 	  </div>
 	</div>
 
@@ -44,7 +44,7 @@
 	    <input type="text" id="train-name" class="text-input"><br>
 	    <h4>Destination</h4>
 	    <input type="text" id="destination" class="text-input"><br>
-	    <h4>First Train Time (HH:mm - military time)</h4>
+	    <h4>First Train Time (HH:mm - Military Time)</h4>
 	    <input type="text" id="first_train" class="text-input"><br>
 		<h4>Frequency (min)</h4>
 		<input type="text" id="frequency" class="text-input"><br><br>
@@ -59,6 +59,7 @@
 
   <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
   <script>
+  //initialize firebase
     var config = {
       apiKey: "AIzaSyDnsAjEdVonnJAvQrBC16veQALeKnxPxVo",
       authDomain: "trainschedule-1ee60.firebaseapp.com",
@@ -71,7 +72,7 @@
     firebase.initializeApp(config);
 
     var dataRef = firebase.database();
-   
+   //grab user input
     $("#submit").on("click", function(event){
     	event.preventDefault();
 
@@ -79,16 +80,14 @@
     	var destination = $("#destination").val().trim();
     	var first_train = $("#first_train").val().trim();
     	var frequency = $("#frequency").val().trim();
-    	var next_arrival;
-    	var minutes_away;
-
+    //create local object for employee data
     	var newTrain = { 		
     		name: name,
     		destination: destination,
     		first_train: first_train,
     		frequency: frequency
     	};
-
+    //uploads employee data to the database
     	dataRef.ref().push(newTrain);
 
     	console.log(newTrain.name);
@@ -97,16 +96,52 @@
     	console.log(newTrain.frequency);
 
     	alert("Train Added to Schedule");
-
+    //clears all of the input boxes
     	$("#train-name").val("");
     	$("#destination").val("");
     	$("#first_train").val("");
     	$("#frequency").val("");
+    });	
+    //create firebase event for adding employee to the database and a row in the html when a user adds an entry
+    dataRef.ref().on("child_added", function(childSnapshot, prevChildKey) {
+ 	
+ 	console.log(childSnapshot.val());
 
-    	$("#table > tbody").append("<tr><td>" + name + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + next_arrival + "</td><td>" + 
-    		minutes_away + "</td></tr>");
+ 	name = childSnapshot.val().name;
+ 	destination = childSnapshot.val().destination;
+ 	first_train = childSnapshot.val().first_train;
+ 	frequency = childSnapshot.val().frequency;
 
-    });
+ 	console.log(name);
+ 	console.log(destination);
+ 	console.log(first_train);
+ 	console.log(frequency);
+ 	//calculate
+
+
+ 	var first_trainConverted = moment(first_train, "HH:mm").subtract(1, "years");
+ 	console.log(first_trainConverted);
+
+ 	var currentTime = moment();
+ 	console.log("Current Time: " + moment(currentTime).format("HH:mm"));
+
+ 	var diffTime = moment().diff(moment(first_trainConverted), "minutes");
+ 	console.log("Difference in time: " + diffTime);
+
+ 	var tRemainder = diffTime % frequency;
+ 	console.log("Remainder: " + tRemainder);
+
+ 	var minutes_away = frequency - tRemainder;
+ 	console.log("Minutes Away: " + minutes_away);
+
+ 	var next_arrival = moment().add(minutes_away, "minutes").format("HH:mm");
+ 	console.log("Next Arrival: " + moment(next_arrival).format("HH:mm"));
+
+
+    //add each train's data to the table
+    	$("#table > tbody").append("<tr><td>" + name + "</td><td>" + destination + "</td><td>" + frequency + "</td><td>" + next_arrival + "</td><td>" + minutes_away + "</td></tr>");
+   
+   	});
 
 
   </script>
